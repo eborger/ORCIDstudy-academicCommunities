@@ -1,6 +1,6 @@
-# Scripts and data files for the analysis of the "ORCID adoption in academic communities" survey performed on qualtrics
+# Scripts and data files for the analysis of the "ORCID adoption in academic communities" survey performed using Qualtrics
 
-## Data 
+## Data
 * 'survey data.csv' which will be named 'surveyData_[DATE].csv'
 Each question is represented by a column, each row represents a respondent. MC quetsions are split into columns with MC options ('subquestions') named "QuestionID_subquestionID", e.g. "Q2.3_1"
 
