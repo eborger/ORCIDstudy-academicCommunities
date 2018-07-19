@@ -33,8 +33,8 @@ mandatedORCID <- as.data.frame(table(subset(data, Q2.4 !="")$Q2.4))
 mandatedORCID_plot <- plotSimpleQ(mandatedORCID, "Q2.4") + ggtitle("Did you get an ORCID iD because you had to?")
 
 #export output
-madatedORCID <- left_join(x=ownership, y=subset(options, QID =="Q2.4", select=c("option", "optionText")), by=c("Var1"="option"))
-write.table(subset(madatedORCID, select=c("optionText", "count")), "results/mandatedORCID.csv", sep=",", row.names=FALSE)
+mandatedORCID <- left_join(x=ownership, y=subset(options, QID =="Q2.4", select=c("option", "optionText")), by=c("Var1"="option"))
+write.table(subset(mandatedORCID, select=c("optionText", "count")), "results/mandatedORCID.csv", sep=",", row.names=FALSE)
 ggsave("results/mandatedORCID.png", plot=mandatedORCID_plot, dpi=300)
 
 #################### Motivation for ORCID signup ################################
