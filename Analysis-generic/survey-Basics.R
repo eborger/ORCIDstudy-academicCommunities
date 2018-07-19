@@ -10,10 +10,12 @@ library(dplyr)
 
 #####################################FUNCTIONS#####################################
 #wrap labels
+#takes as attributes the string value to be wrapped, including categories in a plot, and the width
 label_wrap_mod <- function(value, width = 30) {
   sapply(strwrap(as.character(value), width=width, simplify=FALSE), paste, collapse="\n")}
 
-# functions to generate stacked summary datasets for multiple choice questions
+# functions to generate summary of ../results for multiple choice questions
+# takes as attributes the dataframe and column name (question ID)
 multiSelection <- function(dataset, question)
 {
   prefix <- question
@@ -24,7 +26,7 @@ multiSelection <- function(dataset, question)
   prefix_stack
 }
 
-# Arrange graphs together with a single shard legend 
+# Arrange graphs together with a single shared legend 
 grid_arrange_shared_legend <- function(..., ncol = length(list(...)), nrow = 1, position = c("bottom", "right")) {
   plots <- list(...)
   position <- match.arg(position)
@@ -51,6 +53,8 @@ grid_arrange_shared_legend <- function(..., ncol = length(list(...)), nrow = 1, 
   invisible(combined)
 }
 
+# plot a multiple choice question as bar chart
+# input is the data fram and column name
 plotMCQ <- function(data, question){
   data$QID <- toString(question)
   data <- left_join(x=data, y=questions, by=c("Group.1" = "QualtricsID"))
@@ -64,6 +68,8 @@ plotMCQ <- function(data, question){
   plot
 }
 
+# plot a simple question as column chart
+# input is the data fram and column name
 plotSimpleQ <- function(data, question){
   data$QID <- toString(question)
   data <- left_join(x=data, y=options, by=c("QID", "Group.1" = "option"))
@@ -76,6 +82,8 @@ plotSimpleQ <- function(data, question){
   plot
 }
 
+# plot a matrix question as stacked 100% bar chart
+# input is data frame and column name (question ID)
 plotMatrixQ <- function(data, question){
   data <- left_join(x=data, y=questions, by=c("Group.1"= "QualtricsID"))
   data <- left_join(x=data, y=options, by=c("QID","Group.2" ="option"))
@@ -88,15 +96,15 @@ plotMatrixQ <- function(data, question){
   plot
 }
 ##################################### DATA #####################################
-#AllData <- read.csv("Test_20180413.csv", stringsAsFactors=FALSE)
-AllData <- read.csv("ORCIDstudy_QualtricsSurvey_generic-v2_20180420.csv", stringsAsFactors=FALSE)
+
+AllData <- read.csv("../data/QualtricsSurvey_generic-v2_Test-num20180511.csv", stringsAsFactors=FALSE)
 #extract the data with just Q-code headers
-data <- AllData[-c(1:2),c(8,12:118)]
+data <- AllData[-c(1:2),c(4, 7:115)]
 data$count <- 1
 
 # get a list of all questions and options of the survey
-QualtricsID <- names(AllData[12:118])
-Qualtricstext <- t(AllData[1,12:118])
+QualtricsID <- names(AllData[7:115])
+Qualtricstext <- t(AllData[1,7:115])
 QID <- NA
 Qtext <- NA
 subQID <- NA
@@ -112,14 +120,15 @@ write.table(questions,"surveyQuestions.csv", sep=",",row.names=FALSE)
 
 #Drop-down menus for job roles and schools and single choice questions in qualtrics are not represented in the export
 options <- read.csv("Options.csv")
-options$subQID <- as.character(options$subQID)
+options$option <- as.character(options$option)
 
 ######################## FREE TEXT ANSWERS ################### 
 ### Generate extract of answers to free text questions
-#Q2.3_8_TEXT, Q2.6, Q2.7, Q2.8_11_TEXT, Q2.12_5_TEXT, Q2.14, Q2.15
+#Q2.3_8_TEXT, Q2.5, Q2.7, Q2.8, Q2.9_11_TEXT, Q2.13_5_TEXT, Q2.15, Q2.16
 #Q3.2_5_TEXT, Q3.4 
 #Q4.1_31_TEXT
-#Q6.3, Q6.4, Q6.6
+#Q5.3
+#Q6.3, Q6.4
 
 # Create a file with the free-text answers to one of the questions
 txtout <- function(data,colname)
@@ -176,16 +185,16 @@ deptORCIDs_plot <- ggplot(agg_deptORCIDs, aes(y=x, x=optionText.x, fill=optionTe
   geom_text(aes(label= x),position=position_stack(vjust=0.5),size=3, color="white")
 
 #export output
-names(agg_deptResponse)[names(agg_deptResponse) =="Group.1 | optionText"] <- "School"
+names(agg_deptResponse)[names(agg_deptResponse) =="optionText"] <- "School"
 names(agg_deptResponse)[names(agg_deptResponse) =="x"] <- "count"
-write.table(agg_deptResponse,"results/responses-roles.csv", sep=",")
-ggsave("results/deptResponse_plot.png", plot = deptResponse_plot, dpi=300)
+write.table(subset(agg_deptResponse, select=c("School", "count")),"../results/responses-depts.csv", sep=",", row.names = FALSE)
+ggsave("../results/deptResponse_plot.png", plot = deptResponse_plot, dpi=300)
 
-names(agg_deptORCIDs)[names(agg_deptORCIDs) =="Group.1 | optionText.x"] <- "School"
-names(agg_deptORCIDs)[names(agg_deptORCIDs) =="Group.2 | optionText.y"] <- "ORCID iD"
+names(agg_deptORCIDs)[names(agg_deptORCIDs) =="optionText.x"] <- "School"
+names(agg_deptORCIDs)[names(agg_deptORCIDs) =="optionText.y"] <- "ORCID iD"
 names(agg_deptORCIDs)[names(agg_deptORCIDs) =="x"] <- "count"
-write.table(agg_deptORCIDs,"results/ORCID-dept.csv", sep=",")
-ggsave("results/deptORCIDs.png", plot=deptORCIDs_plot, dpi=300)
+write.table(subset(agg_deptORCIDs, select=c("School", "ORCID iD", "count")),"../results/ORCID-dept.csv", sep=",", row.names = FALSE)
+ggsave("../results/deptORCIDs.png", plot=deptORCIDs_plot, dpi=300)
 
 #################### By role ################################
 roleResponse <- subset(data, Q6.2 !="")
@@ -211,21 +220,18 @@ roleORCIDs_plot <- ggplot(agg_roleORCIDs, aes(y=x, x=label_wrap_mod(optionText.x
 agg_roleResponse$QID <- "Q6.2"
 agg_roleResponse <- left_join(x=agg_roleResponse, y=options, by=c("QID", "Group.1" = "option"))
 names(agg_roleResponse)[names(agg_roleResponse) =="x"] <- "count"
-write.table(agg_roleResponse,"results/responses-roles.csv", sep=",")
-ggsave("results/roleResponse.png", plot=roleResponse_plot, dpi=300)
+names(agg_roleResponse)[names(agg_roleResponse) =="optionText"] <- "Role"
+write.table(subset(agg_roleResponse, select=c("Role", "count")),"../results/responses-roles.csv", sep=",", row.names = FALSE)
+ggsave("../results/roleResponse.png", plot=roleResponse_plot, dpi=300)
 
-names(agg_roleORCIDs)[names(agg_roleORCIDs) =="Group.1 | optionText.x"] <- "Role"
-names(agg_roleORCIDs)[names(agg_roleORCIDs) =="Group.2 | optionText.y"] <- "ORCID iD"
+names(agg_roleORCIDs)[names(agg_roleORCIDs) =="optionText.x"] <- "Role"
+names(agg_roleORCIDs)[names(agg_roleORCIDs) =="optionText.y"] <- "ORCID iD"
 names(agg_roleORCIDs)[names(agg_roleORCIDs) =="x"] <- "count"
-write.table(agg_roleORCIDs,"results/ORCID-role.csv", sep=",")
-ggsave("results/roleORCIDs.png", plot=roleORCIDs_plot, dpi=300)
-
-#################### Response by age group #########################
-#personal information, consider if this is required for analysis.
-
+write.table(subset(agg_roleORCIDs, select=c("Role", "ORCID iD", "count")),"../results/ORCID-role.csv", sep=",", row.names = FALSE)
+ggsave("../results/roleORCIDs.png", plot=roleORCIDs_plot, dpi=300)
 
 ####################ID count################################
 iDs <- subset(data, Q2.1!="")
 iDs <- aggregate(iDs$count, by=list(iDs$Q2.1), FUN=sum, na.rm=T)
 ORCIDiDs_plot <- plotSimpleQ(iDs, "Q2.1")
-ggsave("results/ORCIDiDs.png", plot=ORCIDiDs_plot, dpi=300)
+ggsave("../results/ORCIDiDs.png", plot=ORCIDiDs_plot, dpi=300)

@@ -14,9 +14,9 @@ everHeardabout_plot <- plotSimpleQ(everHeardabout, "Q3.1")
 #export output
 everHeardabout$QID <- "Q3.1"
 everHeardabout_exp <- left_join(x=everHeardabout, y=options, by=c("QID", "Group.1" = "option"))
-names(everHeardabout)[names(everHeardabout) =="x"] <- "count"
-write.table(everHeardabout,"results/everHeardabout.csv", sep=",")
-ggsave("results/everHeardabout.png", plot = everHeardabout_plot, dpi=300)
+names(everHeardabout_exp)[names(everHeardabout_exp) =="x"] <- "count"
+write.table(subset(everHeardabout_exp, select=c("Qtext", "count")),"../results/everHeardabout.csv", sep=",", row.names=FALSE))
+ggsave("../results/everHeardabout.png", plot = everHeardabout_plot, dpi=300)
 
 #################### Convincing to sign up to ORCID ##############################
 convincingSignup <- multiSelection(noORCID,"Q3.3")
@@ -28,20 +28,20 @@ convincingSignup_exp <- left_join(x=convincingSignup, y=questions, by=c("Group.1
 convincingSignup_exp$QID <- "Q5.1"
 convincingSignup_exp <- left_join(x=convincingSignup_exp, y=options, by=c("QID"))
 names(convincingSignup_exp)[names(convincingSignup_exp) =="x"] <- "count"
-write.table(convincingSignup_exp,"results/convincingSignup.csv", sep=",")
-ggsave("results/convincingSignup.png", plot = convincingSignup_plot, dpi=300)
+write.table(subset(convincingSignup_exp, select=c("Qtext", "subQtext", "optionText", "count")),"../results/convincingSignup.csv", sep=",", row.names=FALSE))
+ggsave("../results/convincingSignup.png", plot = convincingSignup_plot, dpi=300)
 
 #################### Learning about ORCID ##############################
-learningORCID <- multiSelection(noORCID, "Q3.6")
+learningORCID <- multiSelection(noORCID, "Q4.1")
 learningORCID <- aggregate(learningORCID$count, by=list(learningORCID$variable), FUN=sum, na.rm=TRUE)
-learningORCID_plot <-plotMCQ(learningORCID, "Q3.6") + theme(axis.title.x = element_blank())
+learningORCID_plot <-plotMCQ(learningORCID, "Q4.1") + theme(axis.title.x = element_blank())
 
 #export output
-learningORCID$QID <- "Q3.6"
+learningORCID$QID <- "Q4.1"
 learningORCID_exp <- left_join(x=learningORCID, y=questions, by=c("Group.1"="QualtricsID"))
 names(learningORCID_exp)[names(learningORCID_exp) =="x"] <- "count"
-write.table(learningORCID_exp,"results/learningORCID.csv", sep=",")
-ggsave("results/learningORCID.png", plot = learningORCID_plot, dpi=300)
+write.table(subset(subset(learningORCID_exp, select=c("Qtext", "subQtext", "count")),"../results/learningORCID.csv", sep=",", row.names=FALSE))
+ggsave("../results/learningORCID.png", plot = learningORCID_plot, dpi=300)
 
 #################### benefitting from ORCID ##############################
 benefit_noiD <- multiSelection(hasORCID,"Q5.1")
@@ -53,5 +53,5 @@ benefit_noiD_exp <- left_join(x=benefit_noiD, y=questions, by=c("Group.1" = "Qua
 benefit_noiD_exp$QID <- "Q5.1"
 benefit_noiD_exp <- left_join(x=benefit_noiD_exp, y=options, by=c("QID"))
 names(benefit_noiD_exp)[names(benefit_noiD_exp) =="x"] <- "count"
-write.table(benefit_noiD_exp,"results/whoBenefits-iD.csv", sep=",")
-ggsave("results/benefit.png", plot = benefit_noiD_plot, dpi=300)
+write.table(subset(benefit_noiD_exp, select=c("Qtext", "subQtext", "optionText", "count")),"../results/whoBenefits-iD.csv", sep=",", row.names=FALSE))
+ggsave("../results/benefit.png", plot = benefit_noiD_plot, dpi=300)
