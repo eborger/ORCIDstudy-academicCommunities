@@ -200,8 +200,8 @@ job_data_plot <- ggplot(job_data, aes(x = optionText, y=Freq)) + geom_bar(stat="
 
 # plot ORCID iDs
 job_ORCIDs <- as.data.frame(table(subset(data, Q6.2 !="")$Q6.2, subset(data, Q6.2 !="")$Q2.1))
-job_ORCIDs <- left_join(x=dept_ORCIDs, y=subset(options, QID =="Q6.2", select=c("option", "optionText")), by=c("Var1" = "option"))
-job_ORCIDs <- left_join(x=dept_ORCIDs, y=subset(options, QID=="Q2.1", select=c("option", "optionText")), by=c("Var2" = "option"))
+job_ORCIDs <- left_join(x=job_ORCIDs, y=subset(options, QID =="Q6.2", select=c("option", "optionText")), by=c("Var1" = "option"))
+job_ORCIDs <- left_join(x=job_ORCIDs, y=subset(options, QID=="Q2.1", select=c("option", "optionText")), by=c("Var2" = "option"))
 
 job_ORCIDs_plot <- ggplot(job_ORCIDs, aes(y=Freq, x=label_wrap_mod(optionText.x, width=30), fill=optionText.y)) + coord_flip() +
   geom_bar(stat="Identity", width=0.8) +
